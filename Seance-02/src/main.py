@@ -115,82 +115,162 @@ for element in export_import_tonnes["import_ton"]:
 
 print("Somme des importations en tonnes :", somme_import) 
 
-territoires = contenu["origin_id"].unique()
 
-for territoire in territoires:
-    
-    somme_export = 0
-    somme_import = 0
-    
-    for element in range(len(contenu)):
-        
-        if contenu["origin_id"].iloc[element] == territoire:
-            
-            if contenu["export_ton"].iloc[element] != "-":
-                somme_export = somme_export + float(contenu["export_ton"].iloc[element])
-            
-            if contenu["import_ton"].iloc[element] != "-":
-                somme_import = somme_import + float(contenu["import_ton"].iloc[element])
-    
-    print(territoire)
-    print("Exportations :", somme_export)
-    print("Importations :", somme_import)
     
 # Question 11
 print("Question 11")
 # Appliquer la fonction listedesterritoires(...) sur vos colonnes ici
 
+# territoire = contenu["origin_id"]
+# exportationUSD = contenu["export_val"]
+# importationUSD = contenu["import_val"]
+
+# totalparterritoire = listedesterritoires(
+#     territoire,
+#     exportationUSD,
+#     importationUSD
+# )
+
+# listedesterritoire = []
+# for element in totalparterritoire:
+#     listedesterritoire.append(element[0])
+
+# for territoire in listedesterritoire:
+#     for element in totalparterritoire:
+#         if element[0] == territoire:
+#             exportations = contenu[contenu["origin_id"] == territoire]["export_val"].sum()
+#             importations = contenu[contenu["origin_id"] == territoire]["import_val"].sum()
+
+#             plt.pie(
+#                 [exportations, importations],
+#                 labels=["Exportations", "Importations"]
+#             )
+
+#             plt.title(territoire)
+#             plt.savefig("./img/" + territoire + ".png")
+#             plt.close()
+
 # Questions 12 et 14
 print("Questions 12 et 14")
 # Application la fonction nettoyage(...) sur vos colonnes ici
 
+distance = contenu["Dist_VO (km)"]
+exportationsUSD = contenu["export_val"]
+importationsUSD = contenu["import_val"]
+exportationsTonnes = contenu["export_ton"]
+importationsTonnes = contenu["import_ton"]
+
+distanceNettoyee = nettoyage(distance)
+exportationsUSDNettoyees = nettoyage(exportationsUSD)
+importationsUSDNettoyees = nettoyage(importationsUSD)
+exportationsTonnesNettoyees = nettoyage(exportationsTonnes)
+importationsTonnesNettoyees = nettoyage(importationsTonnes)
+
 # Appliquer la fonction :
 # liste = getliste(...)
 
+contenu["origin_id"]
+liste = getliste(contenu["origin_id"])
+
 # Mettre le code nouveau DataFrame ici et appeler la liste donnees2
 
+donnees2titre = [
+    "distance",
+    "export_val_2",
+    "import_val_2",
+    "export_ton_2",
+    "import_ton_2"
+]
+
+donnees2 = pd.DataFrame({
+    donnees2titre[0]: distanceNettoyee,
+    donnees2titre[1]: exportationsUSDNettoyees,
+    donnees2titre[2]: importationsUSDNettoyees,
+    donnees2titre[3]: exportationsTonnesNettoyees,
+    donnees2titre[4]: importationsTonnesNettoyees
+})
+
 # Compléter la boucle à partir des différents éléments précédents. Le nom des listes est celle proposée dans les commentaires.
-# parametres = []
-# quartiles = []
-# deciles = []
-# for element in range(0,len(donnees2.columns)):
-#     parametres2 = []
-#     distanceinterquartile = []
-#     distanceinterdecile = []
-#     for element2 in range(0,len(liste)):
-#         codeiso = liste[element2][0]
-#         data2 = donnees2.iloc[liste[element2][1]:liste[element2][2],element]
+parametres = []
+quartiles = []
+deciles = []
 
-#         moyenne = 
-#         mediane = 
-#         mode = 
-#         ecarttype = 
-#         ecartabsolumoyen = 
-#         etendue = 
-#         parametres2.append([codeiso, moyenne, mediane, mode, ecarttype, ecartabsolumoyen, etendue])
+for element in range(0,len(donnees2.columns)):
+    parametres2 = []
+    distanceinterquartile = []
+    distanceinterdecile = []
+    for element2 in range(0,len(liste)):
+        codeiso = liste[element2][0]
+        data2 = donnees2.iloc[liste[element2][1]:liste[element2][2],element]
 
-#         quartile = 
-#         distanceinterquartile.append([codeiso, (quartile[0.75] - quartile[0.25]).round(decimals=2)])
-#         decile = 
-#         distanceinterdecile.append([codeiso, (decile[0.9] - decile[0.1]).round(decimals=2)])
-#     parametres.append(parametres2)
-#     quartiles.append(distanceinterquartile)
-#     deciles.append(distanceinterdecile)
+        moyenne = data2.mean().round(2)
+        mediane = data2.median().round(2)
+        mode = data2.mode().round(2).values[0]
+        ecarttype = data2.std().round(2)
+        ecartabsolumoyen = np.abs(data2 - moyenne).mean().round(2)
+        etendue = (data2.max() - data2.min()).round(2)
+        parametres2.append([codeiso, moyenne, mediane, mode, ecarttype, ecartabsolumoyen, etendue])
+
+        quartile = data2.quantile([0.25, 0.75])
+        distanceinterquartile.append([codeiso, (quartile[0.75] - quartile[0.25]).round(decimals=2)])
+        decile = data2.quantile([0.1, 0.9])
+        distanceinterdecile.append([codeiso, (decile[0.9] - decile[0.1]).round(decimals=2)])
+    parametres.append(parametres2)
+    quartiles.append(distanceinterquartile)
+    deciles.append(distanceinterdecile)
 
 # Question 13
 print("Question 13")
+print(parametres)
 
 # Question 14
 # print("Question 14")
+print(quartiles)
+print(deciles)
 
 # Question 15
 print("Question 15")
+
+for element in range(0,len(donnees2.columns)):
+    data2 = donnees2.iloc[:,element]
+
+    plt.boxplot(data2)
+    plt.title(donnees2.columns[element])
+    plt.savefig("./img/" + donnees2.columns[element] + ".png")
 
 # Question 16
 print("Question 16")
 # Source des données : BDCOM, https://www.apur.org/fr/open-data-cartes/open-data/base-donnees-commerces-parisiens
 with open("./data/restaurants-paris-2023.csv", "r", encoding="utf-8") as fichier:
     contenu2 = pd.read_csv(fichier)
+
+# Question 17
+print("Question 17")
+
+categories = contenu2["surf"]
+
+nombre_categories = categories.value_counts().sort_index()
+
+plt.figure()
+
+plt.bar(
+    ["Moins de 300 m²", "300 à 1000 m²", "Plus de 1000 m²"],
+    [
+        nombre_categories[1],
+        nombre_categories[2],
+        nombre_categories[3]
+    ]
+)
+
+plt.title("Nombre de restaurants selon leur surface")
+plt.ylabel("Nombre de restaurants")
+
+plt.savefig("./img/restaurants_surface.png")
+
+plt.close()
+
+print(nombre_categories)
+
 
 # Question bonus
 print("Question bonus")
