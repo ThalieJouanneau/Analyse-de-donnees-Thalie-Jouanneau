@@ -1,5 +1,6 @@
 #coding:utf8
 
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -89,6 +90,7 @@ print(contenu.dtypes)
 # "export_ton" : valeur des exportations du territoire de référence vers le territoire partenaire en tonnes
 # "import_ton" : valeur des importations du territoire partenaire vers le territoire de référence en tonnes
 
+
 # Question 9
 print("Question 9")
 
@@ -121,34 +123,35 @@ print("Somme des importations en tonnes :", somme_import)
 print("Question 11")
 # Appliquer la fonction listedesterritoires(...) sur vos colonnes ici
 
-# territoire = contenu["origin_id"]
-# exportationUSD = contenu["export_val"]
-# importationUSD = contenu["import_val"]
+territoire = contenu["origin_id"]
+exportationUSD = contenu["export_val"]
+importationUSD = contenu["import_val"]
 
-# totalparterritoire = listedesterritoires(
-#     territoire,
-#     exportationUSD,
-#     importationUSD
-# )
+totalparterritoire = listedesterritoires(
+    territoire,
+    exportationUSD,
+    importationUSD
+)
 
-# listedesterritoire = []
-# for element in totalparterritoire:
-#     listedesterritoire.append(element[0])
+listedesterritoire = []
+for element in totalparterritoire:
+    listedesterritoire.append(element[0])
 
-# for territoire in listedesterritoire:
-#     for element in totalparterritoire:
-#         if element[0] == territoire:
-#             exportations = contenu[contenu["origin_id"] == territoire]["export_val"].sum()
-#             importations = contenu[contenu["origin_id"] == territoire]["import_val"].sum()
+for territoire in listedesterritoire:
+    for element in totalparterritoire:
+        if element[0] == territoire:
+            exportations = contenu[contenu["origin_id"] == territoire]["export_val"].sum()
+            importations = contenu[contenu["origin_id"] == territoire]["import_val"].sum()
 
-#             plt.pie(
-#                 [exportations, importations],
-#                 labels=["Exportations", "Importations"]
-#             )
+            plt.pie(
+                [exportations, importations],
+                labels=["Exportations", "Importations"]
+            )
 
-#             plt.title(territoire)
-#             plt.savefig("./img/" + territoire + ".png")
-#             plt.close()
+            plt.title(territoire)
+            plt.savefig("./img/" + territoire + ".png")
+            plt.close()
+
 
 # Questions 12 et 14
 print("Questions 12 et 14")
@@ -274,3 +277,154 @@ print(nombre_categories)
 
 # Question bonus
 print("Question bonus")
+
+noms_territoires = pd.read_excel("./data/country_names.xls")
+
+correspondance = dict(
+    zip(noms_territoires["id_3char"], noms_territoires["nom"])
+    )
+
+for territoire in totalparterritoire:
+    code_iso = territoire[0]
+    exportations = territoire[1]
+    importations = territoire[2]
+
+    nom_territoire = correspondance.get(code_iso, code_iso)
+
+    plt.figure()
+    plt.pie(
+         [exportations, importations],
+        labels=["Exportations", "Importations"]
+    )
+
+    plt.title(nom_territoire)
+
+    plt.savefig("./img2/" + code_iso + ".png")
+    plt.close()
+
+
+os.makedirs("./csv", exist_ok=True)
+os.makedirs("./xlsx", exist_ok=True)
+
+tableau_total = pd.DataFrame(
+    totalparterritoire,
+    columns=[
+        "code_iso",
+        "exportations_usd",
+        "importations_usd"
+    ]
+)
+
+tableau_total.to_csv(
+    "./csv/totalparterritoire.csv",
+    index=False,
+    encoding="utf-8-sig"
+)
+
+tableau_total.to_excel(
+    "./xlsx/totalparterritoire.xlsx",
+    index=False
+)
+
+
+noms_variables = list(donnees2.columns)
+
+lignes_parametres = []
+
+for i in range(len(parametres)):
+    for resultat in parametres[i]:
+        lignes_parametres.append([
+            noms_variables[i],
+            resultat[0],  # Code ISO
+            resultat[1],  # Moyenne
+            resultat[2],  # Médiane
+            resultat[3],  # Mode
+            resultat[4],  # Écart-type
+            resultat[5],  # Écart absolu moyen
+            resultat[6]   # Étendue
+        ])
+
+tableau_parametres = pd.DataFrame(
+    lignes_parametres,
+    columns=[
+        "variable",
+        "code_iso",
+        "moyenne",
+        "mediane",
+        "mode",
+        "ecart_type",
+        "ecart_absolu_moyen",
+        "etendue"
+    ]
+)
+
+tableau_parametres.to_excel(
+    "./xlsx/parametres.xlsx",
+    index=False
+)
+
+tableau_parametres.to_csv(
+    "./csv/parametres.csv",
+    index=False,
+    encoding="utf-8-sig"
+)
+
+lignes_quartiles = []
+
+for i in range(len(quartiles)):
+    for resultat in quartiles[i]:
+        lignes_quartiles.append([
+            noms_variables[i],
+            resultat[0],  
+            resultat[1]   
+        ])
+
+tableau_quartiles = pd.DataFrame(
+    lignes_quartiles,
+    columns=[
+        "variable",
+        "code_iso",
+        "distance_interquartile"
+    ]
+)
+
+tableau_quartiles.to_excel(
+    "./xlsx/quartiles.xlsx",
+    index=False
+)
+
+tableau_quartiles.to_csv(
+    "./csv/quartiles.csv",
+    index=False,
+    encoding="utf-8-sig"
+)
+
+lignes_deciles = []
+
+for i in range(len(deciles)):
+    for resultat in deciles[i]:
+        lignes_deciles.append([
+            noms_variables[i],
+            resultat[0],  
+            resultat[1]   
+        ])
+
+tableau_deciles = pd.DataFrame(
+    lignes_deciles,
+    columns=[
+        "variable",
+        "code_iso",
+        "distance_interdecile"
+    ]
+)
+
+tableau_deciles.to_excel(
+    "./xlsx/deciles.xlsx",
+    index=False
+)
+
+tableau_deciles.to_csv(
+    "./csv/deciles.csv",
+    index=False,
+    encoding="utf-8-sig"
+)
