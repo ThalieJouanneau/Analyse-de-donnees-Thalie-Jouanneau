@@ -76,6 +76,18 @@ print("Question 8")
 
 print(contenu.dtypes)
 
+for colonne in contenu.columns:
+    type_colonne = contenu[colonne].dtype
+
+    if type_colonne == "int64":
+        type_final = "int"
+    elif type_colonne == "float64":
+        type_final = "float"
+    elif type_colonne == "object":
+        type_final = "str"
+
+    print(colonne, ":", type_final)
+
 # Contenu des colonnes
 # "year" : année
 # "origin_id" : territoire de référence
