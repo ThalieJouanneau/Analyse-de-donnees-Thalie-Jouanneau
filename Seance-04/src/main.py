@@ -1,12 +1,12 @@
 #coding:utf8
 
-from ast import main
-
 import pandas as pd
 import math
 import scipy
 import scipy.stats
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 # C'est la partie la plus importante dans l'analyse de données. D'une part, elle n'est pas simple à comprendre tant mathématiquement que pratiquement. D'autre, elle constitue une application des probabilités. L'idée consiste à comparer une distribution de probabilité (théorique) avec des observations concrètes. De fait, il faut bien connaître les distributions vues dans la séance précédente afin de bien pratiquer cette comparaison. Les probabilités permettent de définir une probabilité critique à partir de laquelle les résultats ne sont pas conformes à la théorie probabiliste.
 # Il n'est pas facile de proposer des analyses de données uniquement dans un cadre univarié. Vous utiliserez la statistique inférentielle principalement dans le cadre d'analyses multivariées. La statistique univariée est une statistique descriptive. Bien que les tests y soient possibles, comprendre leur intérêt et leur puissance d'analyse dans un tel cadre peut être déroutant.
@@ -159,6 +159,133 @@ mode = valeurs2.mode().values[0]
 Q = valeurs2.quantile([0.25, 0.75])
 distance = Q[0.75] - Q[0.25]
 
-print(moyenne, ecart_type, mode, distance)
+maximum = valeurs2.max()
+minimum = valeurs2.min()
+
+print("Moyenne=", moyenne)
+print("Écart-type=", ecart_type)
+print("Mode=", mode)
+print("Distance=", distance)
+print("Maximum=", maximum)
+print("Minimum=", minimum)
 
 
+# Récupérer les valeurs observées
+valeurs = valeurs2.to_numpy()
+
+# Tester plusieurs valeurs possibles du paramètre a
+
+valeurs = valeurs2.to_numpy()
+
+parametres = np.arange(1.1, 6.01, 0.01)
+meilleure_valeur = None
+meilleur_score = float("inf")
+
+for a in parametres:
+    score = -np.sum(scipy.stats.zipf.logpmf(valeurs, a))
+
+    if score < meilleur_score:
+        meilleur_score = score
+        meilleure_valeur = a
+
+print("Paramètre a estimé :", meilleure_valeur)
+
+# Calculer les effectifs observés
+effectifs_observes = valeurs2.value_counts().sort_index()
+
+# Calculer les effectifs théoriques d'une loi de Zipf
+x = np.arange(1, int(valeurs2.max()) + 1)
+probabilites = scipy.stats.zipf.pmf(x, meilleure_valeur)
+effectifs_theoriques = probabilites * len(valeurs2)
+
+# Comparer graphiquement les deux distributions
+plt.figure()
+plt.bar(
+    effectifs_observes.index,
+    effectifs_observes.values,
+    label="Effectifs observés",
+    alpha=0.7
+)
+plt.plot(
+    x,
+    effectifs_theoriques,
+    "ro-",
+    label="Effectifs théoriques de Zipf"
+)
+plt.xlabel("Valeurs")
+plt.ylabel("Effectifs")
+plt.title("Comparaison avec une loi de Zipf")
+plt.legend()
+plt.savefig("./img/comparaison_zipf.png")
+plt.close()
+
+# Fréquences observées
+frequences_observees = (
+    valeurs2.value_counts(normalize=True).sort_index()
+)
+
+# Probabilités théoriques de Zipf
+x = np.arange(1, int(valeurs2.max()) + 1)
+probabilites = scipy.stats.zipf.pmf(x, meilleure_valeur)
+
+plt.figure()
+plt.bar(
+    frequences_observees.index,
+    frequences_observees.values,
+    label="Fréquences observées",
+    alpha=0.7
+)
+plt.plot(
+    x,
+    probabilites,
+    "ro-",
+    label="Probabilités théoriques de Zipf"
+)
+plt.xlabel("Valeurs")
+plt.ylabel("Fréquence / probabilité")
+plt.title("Comparaison des fréquences avec une loi de Zipf")
+plt.legend()
+plt.savefig("./img/comparaison_frequences_zipf.png")
+plt.close()
+
+
+# Test d'adéquation du khi-deux pour la loi de Zipf
+# Effectifs observés dans les 4 catégories
+observes = np.array([
+    (valeurs2 == 1).sum(),
+    (valeurs2 == 2).sum(),
+    (valeurs2 == 3).sum(),
+    (valeurs2 >= 4).sum()
+])
+
+# Probabilités théoriques selon la loi de Zipf estimée
+a = meilleure_valeur
+
+probabilites = np.array([
+    scipy.stats.zipf.pmf(1, a),
+    scipy.stats.zipf.pmf(2, a),
+    scipy.stats.zipf.pmf(3, a),
+    scipy.stats.zipf.sf(3, a)
+])
+
+# Effectifs théoriques attendus
+attendus = probabilites * len(valeurs2)
+
+print("Effectifs observés :", observes)
+print("Effectifs théoriques :", attendus)
+
+# Test du khi-deux
+chi2, p_value = scipy.stats.chisquare(
+    f_obs=observes,
+    f_exp=attendus,
+    ddof=1
+)
+
+print("Statistique du khi-deux :", chi2)
+print("P-value :", p_value)
+
+# Interprétation
+if p_value < 0.05:
+    print("On rejette l'hypothèse d'une loi de Zipf.")
+else:
+    print("On ne rejette pas l'hypothèse d'une loi de Zipf.")
