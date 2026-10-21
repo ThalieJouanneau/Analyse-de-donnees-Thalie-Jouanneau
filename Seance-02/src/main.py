@@ -118,6 +118,7 @@ somme_export = 0
 for element in export_import_tonnes["export_ton"]:
     if element != "-":
         somme_export += float(element)
+        
 
 print("Somme des exportations en tonnes :", somme_export)
 
@@ -130,7 +131,6 @@ for element in export_import_tonnes["import_ton"]:
 print("Somme des importations en tonnes :", somme_import) 
 
 
-    
 # Question 11
 print("Question 11")
 # Appliquer la fonction listedesterritoires(...) sur vos colonnes ici

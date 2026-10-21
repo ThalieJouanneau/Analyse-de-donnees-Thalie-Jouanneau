@@ -1,5 +1,7 @@
 #coding:utf8
 
+from ast import main
+
 import pandas as pd
 import math
 import scipy
@@ -72,6 +74,7 @@ for p in frequences_population:
         (round(borne_inferieure, 3), round(borne_superieure, 3))
     )
 
+
 print("Intervalles de fluctuation :", intervalles_fluctuation)
 
 # Question 2 : Théorie de l'estimation (intervalles de confiance)
@@ -128,7 +131,7 @@ resultat2 = scipy.stats.shapiro(valeurs2)
 
 print("Test de Shapiro-Wilk, série 1 :", resultat1)
 print("Test de Shapiro-Wilk, série 2 :", resultat2)
-print("Selon les résultats du test de Shapiro-Wilk, seule la série 1 suit une loi normale, car sa statistique est très proche de 1.")
+print("Selon les résultats du test de Shapiro-Wilk, seule la série 1 semble suivre une loi normale, car sa statistique est très proche de 1 (malgré une p-value inférieure à 0.05).")
 
 # Question bonus
 print("Question bonus")
@@ -148,3 +151,14 @@ plt.xlabel("Valeurs")
 plt.ylabel("Effectifs")
 plt.savefig("./img/distribution_series_2.png")
 plt.close()
+
+moyenne = valeurs2.mean()
+ecart_type = valeurs2.std()
+mode = valeurs2.mode().values[0]
+
+Q = valeurs2.quantile([0.25, 0.75])
+distance = Q[0.75] - Q[0.25]
+
+print(moyenne, ecart_type, mode, distance)
+
+

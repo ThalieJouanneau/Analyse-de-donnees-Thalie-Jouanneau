@@ -196,10 +196,10 @@ loi_zipf = scipy.stats.zipf(a=2)
 print("Zipf :", moyenne_ecart_type(loi_zipf))
 
 # Loi de Zipf-Mandelbrot
-moyenne_zipf_mandelbrot = np.sum(k * probabilites)
+moyenne_zipf_mandelbrot = np.sum(k * y)
 
 variance_zipf_mandelbrot = np.sum(
-    ((k - moyenne_zipf_mandelbrot) ** 2) * probabilites
+    ((k - moyenne_zipf_mandelbrot) ** 2) * y
 )
 
 ecart_type_zipf_mandelbrot = np.sqrt(variance_zipf_mandelbrot)
