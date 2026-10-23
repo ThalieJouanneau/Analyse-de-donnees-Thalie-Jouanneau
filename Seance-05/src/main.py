@@ -6,10 +6,15 @@ import matplotlib.pyplot as plt
 import scipy
 import scipy.stats
 import math
+import csv
 
 def ouvrirUnFichier(nom):
     with open(nom, "r", encoding='utf-8') as fichier:
         contenu = pd.read_csv(fichier)
+    return contenu
+
+def ouvrirUnFichierExcel(nom):
+    contenu = pd.read_excel(nom, engine="openpyxl")
     return contenu
 
 def conversionLog(liste):
@@ -125,13 +130,15 @@ print("Question 7")
 # On peut en revanche étudier la relation rang-taille, notamment
 # à partir de sa représentation en échelle logarithmique.
 
+
 # Question 9
 print("Question 9")
 
-monde = ouvrirUnFichier("data/Le-Monde-HS-Etats-du-monde-2007-2026.csv")
+monde = ouvrirUnFichierExcel("data/Le-Monde-HS-Etats-du-monde-2007-2026.xlsx")
 
 print(monde.head())
-
+print(monde.columns.tolist())
+print(monde.shape)
 
 # Question 10
 print("Question 10")
@@ -269,7 +276,7 @@ print("P-value de Kendall :", pKendall)
 
 print("Bonus : Population mondiale, 2007-2026")
 
-MondeBonus = ouvrirUnFichier("data/Le-Monde-HS-Etats-du-monde-2007-2026.csv")
+MondeBonus = ouvrirUnFichierExcel("data/Le-Monde-HS-Etats-du-monde-2007-2026.xlsx")
 
 resultatsAnnuels = []
 
@@ -311,6 +318,6 @@ print(resultatsPopulation.head(10))
 print(resultatsPopulation[(resultatsPopulation["Année 1"] == 2007) & (resultatsPopulation["Année 2"] == 2026)])
 
 resultatsPopulation.to_csv(
-    "./csv/resultats-concordance-population-2007-2026.csv",
+    "./csv/Resultats-concordance-population-2007-2026.csv",
     index=False
 )
